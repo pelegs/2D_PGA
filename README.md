@@ -7,7 +7,7 @@ You want to find the line connecting to points? The plane spanned by a point and
 
 ### Ok, but what's this repo?
 
-This is just an extremely simple engine written in python for quick development.
+This is just an extremely simple 2D PGA engine written in python for quick development. (for the mathematicians in the crowd: $\mathbb{R}^{*}_{2,0,1}$, i.e. the Clifford algebra with 2 positive- and 1 zero-signature basis vectors)
 
 ### Why?
 I want to use 3D PGA to write a simple 3D engine in C/C++ (or even CUDA!). However, I'm not convinced I understand it fully. Therefore, I want to first explore it and experiment with. What's better for that than python (and numpy)?
