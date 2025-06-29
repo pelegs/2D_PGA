@@ -54,78 +54,44 @@ class MultiVector:
 
 def meet(A: MultiVector, B: MultiVector) -> MultiVector:
     C: npdarr = np.zeros(8, dtype=npf64)
-    C[0] = (
-        A.vals[0] * B.vals[0]
-        + A.vals[2] * B.vals[2]
-        + A.vals[3] * B.vals[3]
-        - A.vals[6] * B.vals[6]
-    )
-    C[1] = (
-        A.vals[0] * B.vals[1]
-        + A.vals[1] * B.vals[0]
-        - A.vals[2] * B.vals[4]
-        + A.vals[3] * B.vals[5]
-        + A.vals[4] * B.vals[2]
-        - A.vals[5] * B.vals[3]
-        - A.vals[6] * B.vals[7]
-        - A.vals[7] * B.vals[6]
-    )
-    C[2] = (
-        A.vals[0] * B.vals[2]
-        + A.vals[2] * B.vals[0]
-        - A.vals[3] * B.vals[6]
-        + A.vals[6] * B.vals[3]
-    )
-    C[3] = (
-        A.vals[0] * B.vals[3]
-        + A.vals[2] * B.vals[6]
-        + A.vals[3] * B.vals[0]
-        - A.vals[6] * B.vals[2]
-    )
+    C[0] = A.vals[0] * B.vals[0]
+    C[1] = A.vals[1] * B.vals[0] + A.vals[0] * B.vals[1]
+    C[2] = A.vals[2] * B.vals[0] + A.vals[0] * B.vals[2]
+    C[3] = A.vals[3] * B.vals[0] + A.vals[0] * B.vals[3]
     C[4] = (
-        A.vals[0] * B.vals[4]
-        + A.vals[1] * B.vals[2]
+        A.vals[4] * B.vals[0]
+        + A.vals[0] * B.vals[4]
         - A.vals[2] * B.vals[1]
-        + A.vals[3] * B.vals[7]
-        + A.vals[4] * B.vals[0]
-        + A.vals[5] * B.vals[6]
-        - A.vals[6] * B.vals[5]
-        + A.vals[7] * B.vals[3]
+        + A.vals[1] * B.vals[2]
     )
     C[5] = (
-        A.vals[0] * B.vals[5]
-        - A.vals[1] * B.vals[3]
-        + A.vals[2] * B.vals[7]
+        A.vals[5] * B.vals[0]
         + A.vals[3] * B.vals[1]
-        - A.vals[4] * B.vals[6]
-        + A.vals[5] * B.vals[0]
-        + A.vals[6] * B.vals[4]
-        + A.vals[7] * B.vals[2]
+        - A.vals[1] * B.vals[3]
+        + A.vals[0] * B.vals[5]
     )
     C[6] = (
-        A.vals[0] * B.vals[6]
-        + A.vals[2] * B.vals[3]
+        A.vals[6] * B.vals[0]
         - A.vals[3] * B.vals[2]
-        + A.vals[6] * B.vals[0]
+        + A.vals[2] * B.vals[3]
+        + A.vals[0] * B.vals[6]
     )
     C[7] = (
-        A.vals[0] * B.vals[7]
-        + A.vals[1] * B.vals[6]
-        + A.vals[2] * B.vals[5]
-        + A.vals[3] * B.vals[4]
-        + A.vals[4] * B.vals[3]
-        + A.vals[5] * B.vals[2]
+        A.vals[7] * B.vals[0]
         + A.vals[6] * B.vals[1]
-        + A.vals[7] * B.vals[0]
+        + A.vals[5] * B.vals[2]
+        + A.vals[4] * B.vals[3]
+        + A.vals[3] * B.vals[4]
+        + A.vals[2] * B.vals[5]
+        + A.vals[1] * B.vals[6]
+        + A.vals[0] * B.vals[7]
     )
 
     return MultiVector(vals=C)
 
 
 if __name__ == "__main__":
-    c1: MultiVector = MultiVector(vals=np.array([0, 0, 0, 0, 1, 2, 1, 0]))
-    c2: MultiVector = MultiVector(vals=np.array([0, 0, 0, 0, 6, 3, 1, 0]))
-    print(c1.as_point())
-    print(c2.as_point())
+    c1: MultiVector = MultiVector(vals=np.array([0, 5, 2, -1, 0, 0, 0, 0]))
+    c2: MultiVector = MultiVector(vals=np.array([0, -2, 0, 1, 0, 0, 0, 0]))
     c3: MultiVector = meet(c1, c2)
     print(c3)
