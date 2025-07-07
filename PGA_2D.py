@@ -14,6 +14,7 @@ from typing import override
 
 import numpy as np
 import numpy.typing as npt
+from tqdm import tqdm
 
 npf64 = np.float64
 npdarr = npt.NDArray[np.float64]
@@ -40,10 +41,10 @@ class MultiVector:
     @override
     def __repr__(self) -> str:
         return (
-            f"{self.scalar:0.3f}*1 + {self.vector[0]:0.3f}*e1 + {self.vector[1]:0.3f}*e2 + "
-            f"{self.vector[2]:0.3f}*e3 + {self.bivector[0]:0.3f}*e12 + "
-            f"{self.bivector[1]:0.3f}*e23 + {self.bivector[2]:0.3f}*e31 + "
-            f"{self.trivector:0.3f}*e123"
+            f"{self.scalar:0.3f}*1 + {self.vector[0]:0.3f}*e0 + {self.vector[1]:0.3f}*e1 + "
+            f"{self.vector[2]:0.3f}*e2 + {self.bivector[0]:0.3f}*e01 + "
+            f"{self.bivector[1]:0.3f}*e20 + {self.bivector[2]:0.3f}*e12 + "
+            f"{self.trivector:0.3f}*e012"
         )
 
     def as_point(self) -> npdarr:
@@ -52,7 +53,7 @@ class MultiVector:
         return self.bivector[:2][::-1] / self.bivector[2]
 
 
-def meet(A: MultiVector, B: MultiVector) -> MultiVector:
+def wedge(A: MultiVector, B: MultiVector) -> MultiVector:
     C: npdarr = np.zeros(8, dtype=npf64)
     C[0] = A.vals[0] * B.vals[0]
     C[1] = A.vals[1] * B.vals[0] + A.vals[0] * B.vals[1]
@@ -90,8 +91,39 @@ def meet(A: MultiVector, B: MultiVector) -> MultiVector:
     return MultiVector(vals=C)
 
 
+def intersection_point(a: npf64, b: npf64, c: npf64, d: npf64) -> npdarr | None:
+    L: npf64 = a - b
+    if L == 0.0:
+        return None
+    D: npf64 = (d - c) / L
+    return np.array([D, a * D + c])
+
+
+def test_line_intersection() -> bool:
+    coeffs: npdarr = np.random.uniform(-10, 10, 6)
+    G1, A1, B1 = coeffs[:3]
+    G2, A2, B2 = coeffs[3:]
+    if B1 == 0 or B2 == 0:
+        return False
+    a, c = -A1 / B1, -G1 / B1
+    b, d = -A2 / B2, -G2 / B2
+
+    I1: npdarr | None = intersection_point(a, b, c, d)
+    # print("classic calc:", I1)
+
+    c1: MultiVector = MultiVector(vals=np.array([0, *coeffs[:3], 0, 0, 0, 0]))
+    c2: MultiVector = MultiVector(vals=np.array([0, *coeffs[3:], 0, 0, 0, 0]))
+    c12: MultiVector = wedge(c1, c2)
+
+    I2: npdarr | None = c12.as_point()
+    # print("PGA calc:", I2)
+
+    return np.allclose(I1, I2)
+
+
 if __name__ == "__main__":
-    c1: MultiVector = MultiVector(vals=np.array([0, 5, 2, -1, 0, 0, 0, 0]))
-    c2: MultiVector = MultiVector(vals=np.array([0, -2, 0, 1, 0, 0, 0, 0]))
-    c3: MultiVector = meet(c1, c2)
-    print(c3)
+    n: int = 10000
+    for i in tqdm(range(n), desc="Testing line-line intersection"):
+        if not test_line_intersection():
+            print(f"Comparison failed! case #{i}")
+            break
